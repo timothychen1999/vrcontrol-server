@@ -1,6 +1,7 @@
 package sockets
 
 import (
+	"net/http"
 	"time"
 
 	"github.com/gorilla/websocket"
@@ -17,7 +18,12 @@ const (
 	PingPeriod = (PongWait * 9) / 10
 
 	// Maximum message size allowed from peer.
-	MaxMessageSize = 512
+	MaxMessageSize = 1024
+
+	BufferSize = MaxMessageSize * 32
+
+	//Tick Per Second
+	TickRate = 1
 )
 
 var (
@@ -26,6 +32,9 @@ var (
 )
 
 var SocketUpgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
+	ReadBufferSize:  BufferSize,
+	WriteBufferSize: BufferSize,
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
 }
