@@ -14,11 +14,18 @@ const (
 	MessageTypeUpdate MessageType = "update"
 )
 
+type Movement struct {
+	Force            bool
+	DestinationStage int
+	Target           string
+	Broadcast        bool
+}
 type Room struct {
 	RoomID           string
 	PlayerBroadcast  chan []byte
 	PlayerRegister   chan *Player
 	PlayerUnregister chan *Player
+	MoveControl      chan Movement
 	Players          map[*Player]bool
 }
 type RoomMessage struct {
@@ -45,6 +52,7 @@ func NewRoom(roomID string) *Room {
 		PlayerRegister:   make(chan *Player),
 		PlayerUnregister: make(chan *Player),
 		Players:          make(map[*Player]bool),
+		MoveControl:      make(chan Movement),
 	}
 	return room
 }
@@ -61,9 +69,11 @@ func (r *Room) Run() {
 				log.Println("Updater Started")
 			}
 			r.Players[player] = true
+			log.Println("Player Registered: ", player.DeiviceID)
 		case player := <-r.PlayerUnregister:
 			if _, ok := r.Players[player]; ok {
 				delete(r.Players, player)
+				log.Println("Player Unregistered: ", player.DeiviceID)
 				close(player.InChannel)
 				if len(r.Players) == 0 {
 					updater = false
@@ -80,7 +90,61 @@ func (r *Room) Run() {
 				log.Println("Error Unmarshalling Player Message: ", err)
 				continue
 			}
+			// Forward the message to all players except the sender
 
+		case move := <-r.MoveControl:
+			if move.Broadcast {
+				for player := range r.Players {
+					if player == nil {
+						continue
+					} else {
+						eventMessage := model.EventMessage{
+							EventType: model.EventMoveCommand,
+							MoveCommand: &model.MoveCommandMessage{
+								Force:            move.Force,
+								DestinationStage: move.DestinationStage,
+							},
+						}
+						message, err := json.Marshal(eventMessage)
+						if err != nil {
+							log.Println("Error Marshalling Event Message: ", err)
+							continue
+						}
+						// Send the message to all players
+						select {
+						case player.InChannel <- message:
+						default:
+							log.Println("Player Channel is full, disconnecting player")
+							r.PlayerUnregister <- player
+						}
+					}
+				}
+			} else {
+				for player := range r.Players {
+					if player == nil {
+						continue
+					} else if player.DeiviceID == move.Target {
+						eventMessage := model.EventMessage{
+							EventType: model.EventMoveCommand,
+							MoveCommand: &model.MoveCommandMessage{
+								Force:            move.Force,
+								DestinationStage: move.DestinationStage,
+							},
+						}
+						message, err := json.Marshal(eventMessage)
+						if err != nil {
+							log.Println("Error Marshalling Event Message: ", err)
+							continue
+						}
+						select {
+						case player.InChannel <- message:
+						default:
+							log.Println("Player Channel is full, disconnecting player")
+							r.PlayerUnregister <- player
+						}
+					}
+				}
+			}
 		}
 	}
 }
@@ -122,12 +186,14 @@ func (r *Room) UpdateInfo(stop chan struct{}) {
 				continue
 			}
 			for player := range r.Players {
-				player.InChannel <- messageBytes
+				select {
+				case player.InChannel <- messageBytes:
+				default:
+					log.Println("Player Channel is full, disconnecting player")
+					r.PlayerUnregister <- player
+				}
 			}
 
 		}
 	}
-}
-func ConnectToRoom() {
-
 }

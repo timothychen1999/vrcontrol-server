@@ -7,10 +7,6 @@ import (
 	"github.com/timothychen1999/vrcontrol-server/sockets"
 )
 
-const MaxRoomCount = 10
-
-var RoomList map[string]*sockets.Room = make(map[string]*sockets.Room)
-
 func ConnectToRoomSocket(c *gin.Context) {
 	//roomId := c.Param("roomId")
 	roomId := "Test"

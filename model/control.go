@@ -8,7 +8,7 @@ const (
 	TargetServer    TargetType = "server"
 )
 
-type Command struct {
+type Control struct {
 	TargetID   string     `json:"target_id"`
 	TargetType TargetType `json:"target_type"`
 	Command    string     `json:"command"`

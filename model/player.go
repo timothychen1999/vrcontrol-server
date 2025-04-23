@@ -7,6 +7,8 @@ const (
 	MessageTypeReadyToMove MessageType = "ready_to_move"
 	MessageTypeShotEvent   MessageType = "shot_event"
 	MessageTypeLatern      MessageType = "latern"
+	MessagesTypeQA         MessageType = "qa"
+	MessageTypeResumeQA    MessageType = "resume_qa"
 )
 
 type Vector3f struct {
@@ -16,11 +18,13 @@ type Vector3f struct {
 }
 
 type PlayerMessage struct {
-	MessageType string       `json:"message_type"`
+	MessageType MessageType  `json:"message_type"`
 	Heartbeat   *Heartbeat   `json:"heartbeat,omitempty"`
 	ShotEvent   *ShotEvent   `json:"shot_event,omitempty"`
 	Latern      *Latern      `json:"latern,omitempty"`
 	ReadyToMove *ReadyToMove `json:"ready_to_move,omitempty"`
+	QA          *QA          `json:"qa,omitempty"`
+	ResumeQA    *QA          `json:"resume_qa,omitempty"`
 }
 
 type Heartbeat struct {
@@ -53,4 +57,9 @@ type ReadyToMove struct {
 	Timestamp int64  `json:"timestamp"`
 	DeviceID  string `json:"device_id"`
 	Stage     int    `json:"chapter"`
+}
+type QA struct {
+	QuestionID int  `json:"question_id"`
+	StateBool  bool `json:"state_bool"`
+	StateInt   int  `json:"state_int"`
 }

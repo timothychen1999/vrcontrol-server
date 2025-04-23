@@ -15,6 +15,7 @@ type Player struct {
 	Connection       *websocket.Conn
 	Room             *Room
 	Stage            int
+	ReadyToMove      bool
 	InChannel        chan []byte
 	Sequence         int
 	LastUpdate       time.Time
@@ -64,7 +65,7 @@ func (p *Player) read() {
 			continue
 		}
 		switch playerMessage.MessageType {
-		case string(model.MessageTypeHeartbeat):
+		case model.MessageTypeHeartbeat:
 			heartbeat := playerMessage.Heartbeat
 			p.HeadPotion = heartbeat.HeadPotion
 			p.HeadForward = heartbeat.HeadForward
@@ -77,7 +78,11 @@ func (p *Player) read() {
 			p.Stage = heartbeat.Stage
 			p.DeiviceID = heartbeat.DeviceID
 			p.LastUpdate = time.Unix(heartbeat.Timestamp, 0)
-
+		case model.MessageTypeReadyToMove:
+			readyToMove := playerMessage.ReadyToMove
+			p.Stage = readyToMove.Stage
+			p.DeiviceID = readyToMove.DeviceID
+			p.ReadyToMove = true
 		default:
 			// Other is broadcast message
 			// Send to the room
