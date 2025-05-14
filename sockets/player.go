@@ -83,6 +83,12 @@ func (p *Player) read() {
 			p.Stage = readyToMove.Stage
 			p.DeiviceID = readyToMove.DeviceID
 			p.ReadyToMove = true
+
+			mov, action := MovementCheck(p.Room, p, p.Stage)
+			if action {
+				p.Room.MoveControl <- mov
+			}
+
 		default:
 			// Other is broadcast message
 			// Send to the room

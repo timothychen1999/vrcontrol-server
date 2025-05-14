@@ -1,31 +1,29 @@
-package logic
-
-import "github.com/timothychen1999/vrcontrol-server/sockets"
+package sockets
 
 var (
 	ServerBlockChapter = []int{}
 	NoSyncChapter      = []int{0, 1, 2, 3, 4, 5, 6, 7, 9}
 )
 
-func MovementCheck(r *sockets.Room, from int) (sockets.Movement, bool) {
+func MovementCheck(r *Room, p *Player, from int) (Movement, bool) {
 	if r == nil {
 		panic("room is nil")
 	}
 	if len(r.Players) == 0 {
-		return sockets.Movement{}, false
+		return Movement{}, false
 	}
 	// Check if sync is not required
 	for _, chapter := range ServerBlockChapter {
 		if chapter == from {
-			return sockets.Movement{}, false
+			return Movement{}, false
 		}
 	}
 	for _, chapter := range NoSyncChapter {
 		if chapter == from {
-			return sockets.Movement{
+			return Movement{
 				Force:            false,
 				DestinationStage: from + 1,
-				Target:           "all",
+				Target:           p.DeiviceID,
 				Broadcast:        false,
 			}, true
 		}
@@ -39,9 +37,9 @@ func MovementCheck(r *sockets.Room, from int) (sockets.Movement, bool) {
 			continue
 		}
 		// Player is not ready to move, wait for them
-		return sockets.Movement{}, false
+		return Movement{}, false
 	}
-	return sockets.Movement{
+	return Movement{
 		Force:            false,
 		DestinationStage: from + 1,
 		Target:           "all",
