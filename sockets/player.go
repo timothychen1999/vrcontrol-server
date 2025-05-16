@@ -29,9 +29,9 @@ type Player struct {
 	RightHandAvail   bool
 }
 
-func HandlePlayerConnect(room *Room, conn *websocket.Conn) *Player {
+func HandlePlayerConnect(room *Room, conn *websocket.Conn, id string) *Player {
 	player := Player{
-		DeiviceID:  "device-id",
+		DeiviceID:  id,
 		Connection: conn,
 		Room:       room,
 	}

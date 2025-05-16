@@ -2,6 +2,7 @@ package controller
 
 import (
 	"log"
+	"net/http"
 
 	"github.com/gin-gonic/gin"
 	"github.com/timothychen1999/vrcontrol-server/sockets"
@@ -9,12 +10,13 @@ import (
 
 func ConnectToRoomSocket(c *gin.Context) {
 	//roomId := c.Param("roomId")
+	deviceId := c.Param("clientId")
 	roomId := "Test"
 	room, ok := RoomList[roomId]
 	if !ok {
 		if len(RoomList) > MaxRoomCount {
 			log.Println("Room List is full, please try again later.")
-			c.JSON(503, gin.H{"error": "Room List is full, please try again later."})
+			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "Room List is full, please try again later."})
 			return
 		}
 		room = sockets.NewRoom(roomId)
@@ -27,6 +29,6 @@ func ConnectToRoomSocket(c *gin.Context) {
 		log.Println("Error Upgrading Connection: ", err)
 		return
 	}
-	_ = sockets.HandlePlayerConnect(room, conn)
+	_ = sockets.HandlePlayerConnect(room, conn, deviceId)
 
 }

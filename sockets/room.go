@@ -26,7 +26,9 @@ type Room struct {
 	PlayerRegister   chan *Player
 	PlayerUnregister chan *Player
 	MoveControl      chan Movement
+	Signals          chan ControlSignal
 	Players          map[*Player]bool
+	AssignedSequence map[string]int
 }
 type RoomMessage struct {
 	MessageType        MessageType         `json:"message_type"`
@@ -45,6 +47,12 @@ type PlayerPostionInfo struct {
 	RightHandAvail   bool           `json:"right_hand_available"`
 }
 
+type ControlSignal struct {
+	Target *Player
+	Type   string
+	Args   []string
+}
+
 func NewRoom(roomID string) *Room {
 	room := &Room{
 		RoomID:           roomID,
@@ -53,6 +61,7 @@ func NewRoom(roomID string) *Room {
 		PlayerUnregister: make(chan *Player),
 		Players:          make(map[*Player]bool),
 		MoveControl:      make(chan Movement),
+		Signals:          make(chan ControlSignal),
 	}
 	return room
 }
@@ -70,6 +79,28 @@ func (r *Room) Run() {
 			}
 			r.Players[player] = true
 			log.Println("Player Registered: ", player.DeiviceID)
+			update := r.PlayerSequenceUpdate()
+			// Send the player sequence update to the newly registered player
+			for _, seqUpdate := range update {
+				if seqUpdate.Player == nil {
+					continue
+				}
+				eventMessage := model.EventMessage{
+					EventType: model.EventTypeAsignSequence,
+					Sequence:  &seqUpdate.Sequence,
+				}
+				message, err := json.Marshal(eventMessage)
+				if err != nil {
+					log.Println("Error Marshalling Event Message: ", err)
+					continue
+				}
+				select {
+				case player.InChannel <- message:
+				default:
+					log.Println("Player Channel is full, disconnecting player")
+					r.PlayerUnregister <- player
+				}
+			}
 		case player := <-r.PlayerUnregister:
 			if _, ok := r.Players[player]; ok {
 				delete(r.Players, player)
@@ -196,4 +227,12 @@ func (r *Room) UpdateInfo(stop chan struct{}) {
 
 		}
 	}
+}
+func (r *Room) GetPlayerByDeviceID(deviceID string) *Player {
+	for player := range r.Players {
+		if player.DeiviceID == deviceID {
+			return player
+		}
+	}
+	return nil
 }

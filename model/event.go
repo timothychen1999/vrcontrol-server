@@ -3,10 +3,11 @@ package model
 type EventType string
 
 const (
-	EventMoveCommand   EventType = "move_command"
-	EventTypeShotEvent EventType = "shot_event"
-	EventTypeLatern    EventType = "latern"
-	EventTypeQA        EventType = "qa"
+	EventMoveCommand       EventType = "move_command"
+	EventTypeShotEvent     EventType = "shot_event"
+	EventTypeLatern        EventType = "latern"
+	EventTypeQA            EventType = "qa"
+	EventTypeAsignSequence EventType = "assign_sequence"
 )
 
 type EventMessage struct {
@@ -15,6 +16,7 @@ type EventMessage struct {
 	ShotEvent   *ShotEventMessage   `json:"shot_event,omitempty"`
 	Latern      *LaternEventMessage `json:"latern,omitempty"`
 	QA          *QAEventMessage     `json:"qa,omitempty"`
+	Sequence    *int                `json:"sequence,omitempty"`
 }
 type MoveCommandMessage struct {
 	Force            bool `json:"force"`

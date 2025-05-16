@@ -6,5 +6,5 @@ import (
 )
 
 func SetClientWsRoutes(router *gin.RouterGroup) {
-	router.GET("/client/:roomId", controller.ConnectToRoomSocket)
+	router.GET("/client/:roomId/:clinetId", controller.ConnectToRoomSocket)
 }
