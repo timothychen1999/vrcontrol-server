@@ -5,6 +5,7 @@ import (
 	"log"
 	"time"
 
+	"github.com/timothychen1999/vrcontrol-server/consts"
 	"github.com/timothychen1999/vrcontrol-server/model"
 )
 
@@ -63,6 +64,7 @@ func NewRoom(roomID string) *Room {
 		MoveControl:      make(chan Movement),
 		Signals:          make(chan ControlSignal),
 	}
+	room.AssignedSequence = consts.LoadAssignedSequence(roomID)
 	return room
 }
 func (r *Room) Run() {
@@ -114,14 +116,127 @@ func (r *Room) Run() {
 			}
 		case message := <-r.PlayerBroadcast:
 			//Handle Messages from Players
-			log.Println("Message Received: ", string(message))
+
 			var playerMessage model.PlayerMessage
 			err := json.Unmarshal(message, &playerMessage)
 			if err != nil {
 				log.Println("Error Unmarshalling Player Message: ", err)
 				continue
 			}
-			// Forward the message to all players except the sender
+			switch playerMessage.MessageType {
+			case model.MessageTypeHeartbeat:
+				// Should be handled in Player
+				log.Panicln("Heartbeat should be handled in Player")
+			case model.MessageTypeReadyToMove:
+				// Should be handled in Player
+				log.Panicln("ReadyToMove should be handled in Player")
+			case model.MessageTypeShotEvent:
+				// Broadcast the shot event to all players
+				eventMessage := model.EventMessage{
+					EventType: model.EventTypeShotEvent,
+					ShotEvent: &model.ShotEventMessage{
+						Position:  playerMessage.ShotEvent.Position,
+						Direction: playerMessage.ShotEvent.Direction,
+					},
+				}
+				message, err := json.Marshal(eventMessage)
+				if err != nil {
+					log.Println("Error Marshalling Event Message: ", err)
+					continue
+				}
+				for player := range r.Players {
+					if player == nil || player.DeiviceID == playerMessage.ShotEvent.DeviceID {
+						continue
+					} else {
+						select {
+						case player.InChannel <- message:
+						default:
+							log.Println("Player Channel is full, disconnecting player")
+							r.PlayerUnregister <- player
+						}
+					}
+				}
+			case model.MessageTypeLantern:
+				// Broadcast the lantern event to all players
+				eventMessage := model.EventMessage{
+					EventType: model.EventTypeLatern,
+					Latern: &model.LanternEventMessage{
+						LanternID: playerMessage.Latern.LanternID,
+						Postions:  playerMessage.Latern.Postions,
+					},
+				}
+				message, err := json.Marshal(eventMessage)
+				if err != nil {
+					log.Println("Error Marshalling Event Message: ", err)
+					continue
+				}
+				for player := range r.Players {
+					if player == nil || player.DeiviceID == playerMessage.Latern.DeviceID {
+						continue
+					} else {
+						select {
+						case player.InChannel <- message:
+						default:
+							log.Println("Player Channel is full, disconnecting player")
+							r.PlayerUnregister <- player
+						}
+					}
+				}
+			case model.MessagesTypeQA:
+				// Broadcast the QA event to all players
+				eventMessage := model.EventMessage{
+					EventType: model.EventTypeQA,
+					QA: &model.QAEventMessage{
+						QuestionID: playerMessage.QA.QuestionID,
+						StateID:    playerMessage.QA.StateInt,
+						State:      playerMessage.QA.StateBool,
+					},
+				}
+				message, err := json.Marshal(eventMessage)
+				if err != nil {
+					log.Println("Error Marshalling Event Message: ", err)
+					continue
+				}
+				for player := range r.Players {
+					if player == nil {
+						continue
+					} else {
+						select {
+						case player.InChannel <- message:
+						default:
+							log.Println("Player Channel is full, disconnecting player")
+							r.PlayerUnregister <- player
+						}
+					}
+				}
+			case model.MessageTypeResumeQA:
+				// Broadcast the resume QA event to all players
+				eventMessage := model.EventMessage{
+					EventType: model.EventTypeResumeQA,
+				}
+				message, err := json.Marshal(eventMessage)
+				if err != nil {
+					log.Println("Error Marshalling Event Message: ", err)
+					continue
+				}
+				for player := range r.Players {
+					if player == nil {
+						continue
+					} else {
+						select {
+						case player.InChannel <- message:
+						default:
+							log.Println("Player Channel is full, disconnecting player")
+							r.PlayerUnregister <- player
+						}
+					}
+				}
+
+			default:
+				//Message not handled
+				log.Println("Message not handled: ", playerMessage.MessageType)
+
+			}
 
 		case move := <-r.MoveControl:
 			if move.Broadcast {

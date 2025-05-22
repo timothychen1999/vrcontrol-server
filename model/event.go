@@ -8,6 +8,7 @@ const (
 	EventTypeLatern        EventType = "lantern"
 	EventTypeQA            EventType = "qa"
 	EventTypeAsignSequence EventType = "assign_sequence"
+	EventTypeResumeQA      EventType = "resume_qa"
 )
 
 type EventMessage struct {
