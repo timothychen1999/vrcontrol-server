@@ -6,7 +6,7 @@ const (
 	MessageTypeHeartbeat   MessageType = "heartbeat"
 	MessageTypeReadyToMove MessageType = "ready_to_move"
 	MessageTypeShotEvent   MessageType = "shot_event"
-	MessageTypeLatern      MessageType = "latern"
+	MessageTypeLantern     MessageType = "lantern"
 	MessagesTypeQA         MessageType = "qa"
 	MessageTypeResumeQA    MessageType = "resume_qa"
 )
@@ -21,10 +21,10 @@ type PlayerMessage struct {
 	MessageType MessageType  `json:"message_type"`
 	Heartbeat   *Heartbeat   `json:"heartbeat,omitempty"`
 	ShotEvent   *ShotEvent   `json:"shot_event,omitempty"`
-	Latern      *Latern      `json:"latern,omitempty"`
+	Latern      *Lantern     `json:"lantern,omitempty"`
 	ReadyToMove *ReadyToMove `json:"ready_to_move,omitempty"`
 	QA          *QA          `json:"qa,omitempty"`
-	ResumeQA    *QA          `json:"resume_qa,omitempty"`
+	ResumeQA    *bool        `json:"resume_qa,omitempty"`
 }
 
 type Heartbeat struct {
@@ -47,10 +47,10 @@ type ShotEvent struct {
 	Position  Vector3f `json:"position"`
 	Direction Vector3f `json:"direction"`
 }
-type Latern struct {
+type Lantern struct {
 	Timestamp int64      `json:"timestamp"`
 	DeviceID  string     `json:"device_id"`
-	LaternID  int        `json:"latern_id"`
+	LanternID int        `json:"lantern_id"`
 	Postions  []Vector3f `json:"postions"`
 }
 type ReadyToMove struct {

@@ -1,13 +1,19 @@
 package main
 
 import (
+	"log"
+
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 	"github.com/timothychen1999/vrcontrol-server/routes"
 )
 
 func main() {
-	godotenv.Load()
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("Error loading .env file")
+		log.Printf("Error: %v", err)
+	}
 	router := createRouter()
 	router.Run()
 
