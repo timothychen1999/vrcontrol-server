@@ -10,11 +10,13 @@ type SequenceUpdate struct {
 func (r *Room) PlayerSequenceUpdate() []SequenceUpdate {
 	names := make([]string, 0, len(r.Players))
 	maps := make(map[string]*Player, len(r.Players))
+	used_sequences := make(map[int]bool, len(r.Players))
 	for player := range r.Players {
 		if player == nil {
 			continue
 		}
-		if _, ok := r.AssignedSequence[player.DeiviceID]; ok {
+		if seq, ok := r.AssignedSequence[player.DeiviceID]; ok {
+			used_sequences[seq] = true
 			// Player already has a sequence assigned, skip
 			continue
 		}
@@ -30,6 +32,11 @@ func (r *Room) PlayerSequenceUpdate() []SequenceUpdate {
 	sort.Strings(names)
 	i := 0
 	for _, name := range names {
+		if _, ok := used_sequences[i]; ok {
+			// Sequence already used, skip
+			i++
+			continue
+		}
 		player := maps[name]
 		if player == nil {
 			continue
