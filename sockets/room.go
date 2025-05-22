@@ -95,10 +95,10 @@ func (r *Room) Run() {
 					continue
 				}
 				select {
-				case player.InChannel <- message:
+				case seqUpdate.Player.InChannel <- message:
 				default:
 					log.Println("Player Channel is full, disconnecting player")
-					r.PlayerUnregister <- player
+					r.PlayerUnregister <- seqUpdate.Player
 				}
 			}
 		case player := <-r.PlayerUnregister:

@@ -11,6 +11,12 @@ import (
 func ConnectToRoomSocket(c *gin.Context) {
 	//roomId := c.Param("roomId")
 	deviceId := c.Param("clientId")
+	// Check if the deviceId is valid
+	if deviceId == "" {
+		log.Println("Invalid deviceId")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid deviceId"})
+		return
+	}
 	roomId := "Test"
 	room, ok := RoomList[roomId]
 	if !ok {
