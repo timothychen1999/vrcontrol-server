@@ -11,22 +11,22 @@ import (
 )
 
 type Player struct {
-	DeiviceID        string
-	Connection       *websocket.Conn
-	Room             *Room
-	Stage            int
-	ReadyToMove      bool
-	InChannel        chan []byte
-	Sequence         int
-	LastUpdate       time.Time
-	HeadPotion       model.Vector3f
-	HeadForward      model.Vector3f
-	LeftHandPostion  model.Vector3f
-	LeftHandForward  model.Vector3f
-	RightHandPostion model.Vector3f
-	RightHandForward model.Vector3f
-	LeftHandAvail    bool
-	RightHandAvail   bool
+	DeiviceID         string
+	Connection        *websocket.Conn
+	Room              *Room
+	Stage             int
+	ReadyToMove       bool
+	InChannel         chan []byte
+	Sequence          int
+	LastUpdate        time.Time
+	HeadPosition      model.Vector3f
+	HeadForward       model.Vector3f
+	LeftHandPosition  model.Vector3f
+	LeftHandForward   model.Vector3f
+	RightHandPosition model.Vector3f
+	RightHandForward  model.Vector3f
+	LeftHandAvail     bool
+	RightHandAvail    bool
 }
 
 func HandlePlayerConnect(room *Room, conn *websocket.Conn, id string) *Player {
@@ -67,11 +67,11 @@ func (p *Player) read() {
 		switch playerMessage.MessageType {
 		case model.MessageTypeHeartbeat:
 			heartbeat := playerMessage.Heartbeat
-			p.HeadPotion = heartbeat.HeadPotion
+			p.HeadPosition = heartbeat.HeadPosition
 			p.HeadForward = heartbeat.HeadForward
-			p.LeftHandPostion = heartbeat.LeftHandPostion
+			p.LeftHandPosition = heartbeat.LeftHandPostion
 			p.LeftHandForward = heartbeat.LeftHandForward
-			p.RightHandPostion = heartbeat.RightHandPostion
+			p.RightHandPosition = heartbeat.RightHandPostion
 			p.RightHandForward = heartbeat.RightHandForward
 			p.LeftHandAvail = heartbeat.LeftHandAvail
 			p.RightHandAvail = heartbeat.RightHandAvail

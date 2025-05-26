@@ -32,20 +32,20 @@ type Room struct {
 	AssignedSequence map[string]int
 }
 type RoomMessage struct {
-	MessageType        MessageType         `json:"message_type"`
-	PlayerPostionInfos []PlayerPostionInfo `json:"player_position_info"`
-	PlayerCount        int                 `json:"player_count"`
+	MessageType         MessageType          `json:"message_type"`
+	PlayerPositionInfos []PlayerPositionInfo `json:"player_position_info"`
+	PlayerCount         int                  `json:"player_count"`
 }
-type PlayerPostionInfo struct {
-	DeviceID         string         `json:"device_id"`
-	HeadPotion       model.Vector3f `json:"head_position"`
-	HeadForward      model.Vector3f `json:"head_forward,omitempty"`
-	LeftHandPostion  model.Vector3f `json:"left_hand_position"`
-	LeftHandForward  model.Vector3f `json:"left_hand_forward,omitempty"`
-	RightHandPostion model.Vector3f `json:"right_hand_position"`
-	RightHandForward model.Vector3f `json:"right_hand_forward,omitempty"`
-	LeftHandAvail    bool           `json:"left_hand_available"`
-	RightHandAvail   bool           `json:"right_hand_available"`
+type PlayerPositionInfo struct {
+	DeviceID          string         `json:"device_id"`
+	HeadPosition      model.Vector3f `json:"head_position"`
+	HeadForward       model.Vector3f `json:"head_forward,omitempty"`
+	LeftHandPosition  model.Vector3f `json:"left_hand_position"`
+	LeftHandForward   model.Vector3f `json:"left_hand_forward,omitempty"`
+	RightHandPosition model.Vector3f `json:"right_hand_position"`
+	RightHandForward  model.Vector3f `json:"right_hand_forward,omitempty"`
+	LeftHandAvail     bool           `json:"left_hand_available"`
+	RightHandAvail    bool           `json:"right_hand_available"`
 }
 
 type ControlSignal struct {
@@ -307,24 +307,24 @@ func (r *Room) UpdateInfo(stop chan struct{}) {
 				continue
 			}
 			//Send Player Position Info to all players
-			playerPostionInfos := make([]PlayerPostionInfo, 0, len(r.Players))
+			playerPostionInfos := make([]PlayerPositionInfo, 0, len(r.Players))
 			for player := range r.Players {
-				playerPostionInfos = append(playerPostionInfos, PlayerPostionInfo{
-					DeviceID:         player.DeiviceID,
-					HeadPotion:       player.HeadPotion,
-					HeadForward:      player.HeadForward,
-					LeftHandPostion:  player.LeftHandPostion,
-					LeftHandForward:  player.LeftHandForward,
-					RightHandPostion: player.RightHandPostion,
-					RightHandForward: player.RightHandForward,
-					LeftHandAvail:    player.LeftHandAvail,
-					RightHandAvail:   player.RightHandAvail,
+				playerPostionInfos = append(playerPostionInfos, PlayerPositionInfo{
+					DeviceID:          player.DeiviceID,
+					HeadPosition:      player.HeadPosition,
+					HeadForward:       player.HeadForward,
+					LeftHandPosition:  player.LeftHandPosition,
+					LeftHandForward:   player.LeftHandForward,
+					RightHandPosition: player.RightHandPosition,
+					RightHandForward:  player.RightHandForward,
+					LeftHandAvail:     player.LeftHandAvail,
+					RightHandAvail:    player.RightHandAvail,
 				})
 			}
 			roomMessage := RoomMessage{
-				MessageType:        MessageTypeUpdate,
-				PlayerPostionInfos: playerPostionInfos,
-				PlayerCount:        len(r.Players),
+				MessageType:         MessageTypeUpdate,
+				PlayerPositionInfos: playerPostionInfos,
+				PlayerCount:         len(r.Players),
 			}
 			messageBytes, err := json.Marshal(roomMessage)
 			if err != nil {

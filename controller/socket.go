@@ -38,3 +38,26 @@ func ConnectToRoomSocket(c *gin.Context) {
 	_ = sockets.HandlePlayerConnect(room, conn, deviceId)
 
 }
+func ConnectToRoomControlSocket(c *gin.Context) {
+	roomId := c.Param("roomId")
+
+	// Check if the deviceId is valid
+	room, ok := RoomList[roomId]
+	if !ok {
+		if len(RoomList) > MaxRoomCount {
+			log.Println("Room List is full, please try again later.")
+			c.JSON(http.StatusServiceUnavailable, gin.H{"error": "Room List is full, please try again later."})
+			return
+		}
+		room = sockets.NewRoom(roomId)
+		RoomList[roomId] = room
+		go room.Run()
+		log.Println("Room Created: ", roomId)
+	}
+	conn, err := sockets.SocketUpgrader.Upgrade(c.Writer, c.Request, nil)
+	if err != nil {
+		log.Println("Error Upgrading Connection: ", err)
+		return
+	}
+	sockets.HandleControllerConnect(room, conn)
+}

@@ -32,7 +32,7 @@ type Heartbeat struct {
 	DeviceID         string   `json:"device_id"`
 	Stage            int      `json:"chapter"`
 	Message          string   `json:"message"`
-	HeadPotion       Vector3f `json:"head_position"`
+	HeadPosition     Vector3f `json:"head_position"`
 	HeadForward      Vector3f `json:"head_forward,omitempty"`
 	LeftHandPostion  Vector3f `json:"left_hand_position"`
 	LeftHandForward  Vector3f `json:"left_hand_forward,omitempty"`
