@@ -39,7 +39,7 @@ func (r *Room) GetRoomUpdate() model.RoomUpdate {
 	return model.RoomUpdate{
 		RoomID:      r.RoomID,
 		PlayerCount: len(r.Players),
-		Players: utilities.Fold2(maps.All(r.Players), make([]model.PlayerStatus, len(r.Players)), func(_l []model.PlayerStatus, p *Player, inuse bool) []model.PlayerStatus {
+		Players: utilities.Fold2(maps.All(r.Players), make([]model.PlayerStatus, 0, len(r.Players)), func(_l []model.PlayerStatus, p *Player, inuse bool) []model.PlayerStatus {
 			if !inuse {
 				return _l
 			}
