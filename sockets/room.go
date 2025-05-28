@@ -10,9 +10,11 @@ import (
 )
 
 type MessageType string
+type ControlSignalType string
 
 const (
-	MessageTypeUpdate MessageType = "update"
+	MessageTypeUpdate          MessageType       = "update"
+	ControlSignalTypeSeqUpdate ControlSignalType = "seq_update"
 )
 
 type Movement struct {
@@ -50,7 +52,7 @@ type PlayerPositionInfo struct {
 
 type ControlSignal struct {
 	Target *Player
-	Type   string
+	Type   ControlSignalType
 	Args   []string
 }
 
@@ -289,6 +291,38 @@ func (r *Room) Run() {
 							r.PlayerUnregister <- player
 						}
 					}
+				}
+			}
+		case signal := <-r.Signals:
+			switch signal.Type {
+			case ControlSignalTypeSeqUpdate:
+				if signal.Target == nil {
+					log.Println("ControlSignalTypeSeqUpdate: Target is nil")
+					continue
+				}
+				// Update the assigned sequence for the player
+				if seq, ok := r.AssignedSequence[signal.Target.DeiviceID]; ok {
+					signal.Target.Sequence = seq
+					log.Println("ControlSignalTypeSeqUpdate: Player found in AssignedSequence, Sequence: ", seq)
+				} else {
+					log.Println("ControlSignalTypeSeqUpdate: Player not found in AssignedSequence")
+					continue
+				}
+				// Send the sequence update to the player
+				eventMessage := model.EventMessage{
+					EventType: model.EventTypeAsignSequence,
+					Sequence:  &signal.Target.Sequence,
+				}
+				message, err := json.Marshal(eventMessage)
+				if err != nil {
+					log.Println("Error Marshalling Event Message: ", err)
+					continue
+				}
+				select {
+				case signal.Target.InChannel <- message:
+				default:
+					log.Println("Player Channel is full, disconnecting player")
+					r.PlayerUnregister <- signal.Target
 				}
 			}
 		}

@@ -2,8 +2,10 @@ package controller
 
 import (
 	"net/http"
+	"strconv"
 
 	"github.com/gin-gonic/gin"
+	"github.com/timothychen1999/vrcontrol-server/sockets"
 )
 
 // AssignSequence assigns a specific sequence to a client, instead of automatically assigning it based on the order of connection.
@@ -20,8 +22,49 @@ func AssignSequence(c *gin.Context) {
 		return
 	}
 
-	// For now, it simply returns a success message.
+	seq, err := strconv.Atoi(c.Param("seq"))
+	if err != nil || seq < 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid sequence number",
+		})
+		return
+	}
+	r.AssignedSequence[p.DeiviceID] = seq
+	r.Signals <- sockets.ControlSignal{
+		Type:   sockets.ControlSignalTypeSeqUpdate,
+		Target: p,
+	}
 	c.JSON(http.StatusOK, gin.H{
-		"message": "Sequence assigned successfully",
+		"message":  "Sequence assigned successfully",
+		"sequence": seq,
+	})
+}
+func ForceMove(c *gin.Context) {
+	// This function is a placeholder for forcing a player to move.
+	// The actual implementation will depend on the specific requirements of the application.
+	r := RoomList[c.Param("roomId")]
+	p := r.GetPlayerByDeviceID(c.Param("clientId"))
+	dest, err := strconv.Atoi(c.Param("dest"))
+	if err != nil || dest < 0 {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Invalid destination",
+		})
+		return
+	}
+	if p == nil {
+		c.JSON(http.StatusNotFound, gin.H{
+			"error": "Player not found",
+		})
+		return
+	}
+
+	r.MoveControl <- sockets.Movement{
+		DestinationStage: dest,
+		Force:            true,
+		Target:           p.DeiviceID,
+		Broadcast:        false,
+	}
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Player forced to move successfully",
 	})
 }

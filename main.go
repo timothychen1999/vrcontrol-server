@@ -25,5 +25,7 @@ func createRouter() *gin.Engine {
 	router.Use(gin.Recovery())
 	ws := router.Group("/ws")
 	routes.SetClientWsRoutes(ws)
+	simple := router.Group("/simple")
+	routes.SetSimpleControlRoutes(simple)
 	return router
 }
