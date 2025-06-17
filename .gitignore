@@ -22,3 +22,6 @@ go.work
 
 # Environment file
 *.env
+
+sequence/assigned_room.json
+sequence/sequence/*.json
