@@ -29,21 +29,23 @@ type Player struct {
 	RightHandAvail    bool
 }
 
-func HandlePlayerConnect(room *Room, conn *websocket.Conn, id string) *Player {
+func HandlePlayerConnect(conn *websocket.Conn, id string) *Player {
 	player := Player{
 		DeiviceID:  id,
 		Connection: conn,
-		Room:       room,
 	}
 	player.InChannel = make(chan []byte, BufferSize)
 	go player.read()
 	go player.write()
-	room.PlayerRegister <- &player
 	return &player
 }
 func (p *Player) read() {
 	defer func() {
-		p.Room.PlayerUnregister <- p
+		if p.Room != nil {
+			p.Room.PlayerUnregister <- p
+		} else {
+			log.Printf("Player %s disconnected before being assigned to a room.", p.DeiviceID)
+		}
 		p.Connection.Close()
 	}()
 	p.Connection.SetReadLimit(MaxMessageSize)
@@ -51,13 +53,20 @@ func (p *Player) read() {
 	p.Connection.SetPongHandler(func(string) error { p.Connection.SetReadDeadline(time.Now().Add(PongWait)); return nil })
 	for {
 		_, message, err := p.Connection.ReadMessage()
+
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Printf("error: %v", err)
 			}
 			break
 		}
+
 		message = bytes.TrimSpace(bytes.Replace(message, Newline, Space, -1))
+		if p.Room == nil {
+			log.Printf("Player %s is in standby, message receeived: %s", p.DeiviceID, string(message))
+			// If the player is not in a room, we just log the message and continue
+			continue
+		}
 		var playerMessage model.PlayerMessage
 		err = json.Unmarshal(message, &playerMessage)
 		if err != nil {

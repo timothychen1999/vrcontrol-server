@@ -27,5 +27,7 @@ func createRouter() *gin.Engine {
 	routes.SetClientWsRoutes(ws)
 	simple := router.Group("/simple")
 	routes.SetSimpleControlRoutes(simple)
+	control := router.Group("/control")
+	routes.SetControlRoute(control)
 	return router
 }
