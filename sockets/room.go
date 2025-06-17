@@ -329,8 +329,7 @@ func (r *Room) Run() {
 	}
 }
 func (r *Room) UpdateInfo(stop chan struct{}) {
-	//Routine Update to all players runing at 30 tps
-	ticker := time.NewTicker(time.Second / TickRate)
+	ticker := time.NewTicker(time.Second / time.Duration(TickRate))
 	defer ticker.Stop()
 	for range ticker.C {
 		select {

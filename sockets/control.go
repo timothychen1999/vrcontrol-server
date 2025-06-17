@@ -132,7 +132,7 @@ func (c *Controller) RoomUpdater(stop chan struct{}) {
 		log.Println("RoomUpdater called on nil room")
 		return
 	}
-	ticker := time.NewTicker(time.Second / TickRate)
+	ticker := time.NewTicker(time.Second / time.Duration(TickRate))
 	defer ticker.Stop()
 
 	for {

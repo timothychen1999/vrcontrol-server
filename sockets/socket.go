@@ -2,31 +2,29 @@ package sockets
 
 import (
 	"net/http"
-	"time"
 
 	"github.com/gorilla/websocket"
-)
-
-const (
-	// Time allowed to write a message to the peer.
-	WriteWait = 5 * time.Second
-
-	// Time allowed to read the next pong message from the peer.
-	PongWait = 10 * time.Second
-
-	// Send pings to peer with this period. Must be less than pongWait.
-	PingPeriod = (PongWait * 9) / 10
-
-	// Maximum message size allowed from peer.
-	MaxMessageSize = 1024
-
-	BufferSize = MaxMessageSize * 32
-
-	//Tick Per Second
-	TickRate = 1
+	"github.com/timothychen1999/vrcontrol-server/consts"
 )
 
 var (
+	// Time allowed to write a message to the peer.
+	WriteWait = consts.WriteWait
+
+	// Time allowed to read the next pong message from the peer.
+	PongWait = consts.PongWait
+
+	// Send pings to peer with this period. Must be less than pongWait.
+	PingPeriod = consts.PingPeriod
+
+	// Maximum message size allowed from peer.
+	MaxMessageSize = int64(consts.MaxMessageSize)
+
+	BufferSize = consts.BufferSize
+
+	//Tick Per Second
+	TickRate = consts.TickRate
+
 	Newline = []byte{'\n'}
 	Space   = []byte{' '}
 )

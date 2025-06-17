@@ -11,8 +11,7 @@ import (
 // AssignSequence assigns a specific sequence to a client, instead of automatically assigning it based on the order of connection.
 
 func AssignSequence(c *gin.Context) {
-	// This function is a placeholder for assigning a sequence to a client.
-	// The actual implementation will depend on the specific requirements of the application.
+
 	r := RoomList[c.Param("roomId")]
 	p := r.GetPlayerByDeviceID(c.Param("clientId"))
 	if p == nil {
@@ -40,8 +39,7 @@ func AssignSequence(c *gin.Context) {
 	})
 }
 func ForceMove(c *gin.Context) {
-	// This function is a placeholder for forcing a player to move.
-	// The actual implementation will depend on the specific requirements of the application.
+
 	r := RoomList[c.Param("roomId")]
 	p := r.GetPlayerByDeviceID(c.Param("clientId"))
 	dest, err := strconv.Atoi(c.Param("dest"))
