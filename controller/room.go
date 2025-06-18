@@ -38,6 +38,7 @@ func GetRoomList(c *gin.Context) {
 		lis[i] = k
 		i++
 	}
+	c.JSON(200, gin.H{"rooms": lis})
 
 }
 func AssignRoomAndSeq(c *gin.Context) {
