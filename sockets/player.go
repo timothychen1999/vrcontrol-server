@@ -8,6 +8,7 @@ import (
 
 	"github.com/gorilla/websocket"
 	"github.com/timothychen1999/vrcontrol-server/model"
+	"github.com/timothychen1999/vrcontrol-server/utilities"
 )
 
 type Player struct {
@@ -77,7 +78,7 @@ func (p *Player) read() {
 			p.RightHandAvail = heartbeat.RightHandAvail
 			p.Stage = heartbeat.Stage
 			p.DeiviceID = heartbeat.DeviceID
-			p.LastUpdate = time.Unix(heartbeat.Timestamp, 0)
+			p.LastUpdate = utilities.TicksToDateTime(heartbeat.Timestamp)
 		case model.MessageTypeReadyToMove:
 			readyToMove := playerMessage.ReadyToMove
 			p.Stage = readyToMove.Stage
