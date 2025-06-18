@@ -62,6 +62,7 @@ func (r *Room) GetRoomUpdate() model.RoomUpdate {
 				RightHandForward:  p.RightHandForward,
 				LeftHandAvail:     p.LeftHandAvail,
 				RightHandAvail:    p.RightHandAvail,
+				LastUpdate:        p.LastUpdate,
 			})
 		}),
 	}

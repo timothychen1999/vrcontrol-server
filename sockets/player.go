@@ -36,6 +36,7 @@ func HandlePlayerConnect(conn *websocket.Conn, id string, sdc chan string) *Play
 		DeiviceID:         id,
 		Connection:        conn,
 		StandbyDisconnect: sdc,
+		LastUpdate:        time.Now(),
 	}
 	player.InChannel = make(chan []byte, BufferSize)
 	go player.read()

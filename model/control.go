@@ -1,5 +1,7 @@
 package model
 
+import "time"
+
 type TargetType string
 
 const (
@@ -24,16 +26,17 @@ type RoomUpdate struct {
 }
 
 type PlayerStatus struct {
-	DeviceID          string   `json:"device_id"`
-	Stage             int      `json:"chapter"`
-	Sequence          int      `json:"sequence"`
-	ReadyToMove       bool     `json:"ready_to_move"`
-	LeftHandPosition  Vector3f `json:"left_hand_position"`
-	LeftHandForward   Vector3f `json:"left_hand_forward"`
-	RightHandPosition Vector3f `json:"right_hand_position"`
-	RightHandForward  Vector3f `json:"right_hand_forward"`
-	LeftHandAvail     bool     `json:"left_hand_available"`
-	RightHandAvail    bool     `json:"right_hand_available"`
-	HeadPosition      Vector3f `json:"head_position"`
-	HeadForward       Vector3f `json:"head_forward"`
+	DeviceID          string    `json:"device_id"`
+	Stage             int       `json:"chapter"`
+	Sequence          int       `json:"sequence"`
+	ReadyToMove       bool      `json:"ready_to_move"`
+	LeftHandPosition  Vector3f  `json:"left_hand_position"`
+	LeftHandForward   Vector3f  `json:"left_hand_forward"`
+	RightHandPosition Vector3f  `json:"right_hand_position"`
+	RightHandForward  Vector3f  `json:"right_hand_forward"`
+	LeftHandAvail     bool      `json:"left_hand_available"`
+	RightHandAvail    bool      `json:"right_hand_available"`
+	HeadPosition      Vector3f  `json:"head_position"`
+	HeadForward       Vector3f  `json:"head_forward"`
+	LastUpdate        time.Time `json:"last_update"`
 }
