@@ -21,7 +21,7 @@ func ConnectToRoomSocket(c *gin.Context) {
 		log.Println("Error Upgrading Connection: ", err)
 		return
 	}
-	p := sockets.HandlePlayerConnect(conn, deviceId)
+	p := sockets.HandlePlayerConnect(conn, deviceId, StandbyPlayerDisconnect)
 	if p == nil {
 		log.Println("Failed to handle player connection for deviceId:", deviceId)
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to handle player connection"})

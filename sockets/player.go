@@ -27,12 +27,14 @@ type Player struct {
 	RightHandForward  model.Vector3f
 	LeftHandAvail     bool
 	RightHandAvail    bool
+	StandbyDisconnect chan string
 }
 
-func HandlePlayerConnect(conn *websocket.Conn, id string) *Player {
+func HandlePlayerConnect(conn *websocket.Conn, id string, sdc chan string) *Player {
 	player := Player{
-		DeiviceID:  id,
-		Connection: conn,
+		DeiviceID:         id,
+		Connection:        conn,
+		StandbyDisconnect: sdc,
 	}
 	player.InChannel = make(chan []byte, BufferSize)
 	go player.read()
@@ -45,6 +47,7 @@ func (p *Player) read() {
 			p.Room.PlayerUnregister <- p
 		} else {
 			log.Printf("Player %s disconnected before being assigned to a room.", p.DeiviceID)
+			p.StandbyDisconnect <- p.DeiviceID
 		}
 		p.Connection.Close()
 	}()
