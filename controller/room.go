@@ -15,9 +15,20 @@ const MaxRoomCount = 10
 var RoomList map[string]*sockets.Room = make(map[string]*sockets.Room)
 var DeviceRoomMap map[string]string = make(map[string]string)
 var StandbyPlayerMap map[string]*sockets.Player = make(map[string]*sockets.Player)
+var StandbyPlayerDisconnect = make(chan string)
 
 func init() {
 	DeviceRoomMap = consts.LoadAssignedRoom()
+	go func() {
+		for disconect := range StandbyPlayerDisconnect {
+			if player, exists := StandbyPlayerMap[disconect]; exists {
+				delete(StandbyPlayerMap, disconect)
+				if player.Room != nil {
+					player.Room.PlayerUnregister <- player
+				}
+			}
+		}
+	}()
 }
 
 func GetRoomList(c *gin.Context) {
