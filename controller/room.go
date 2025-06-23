@@ -69,6 +69,12 @@ func AssignRoomAndSeq(c *gin.Context) {
 
 	player.Room = room
 	room.PlayerRegister <- player
+	delete(StandbyPlayerMap, deviceId)
+	c.JSON(200, gin.H{
+		"message":  "Player assigned to room successfully",
+		"roomId":   roomId,
+		"sequence": seq,
+	})
 
 }
 func CreateRoom(c *gin.Context) {
